@@ -32,15 +32,80 @@ app.get("/filter",(req,res)=>{
   const filterJokes=jokes.filter((joke)=>joke.jokeType===type)
   res.json(filterJokes)
 })
+
 //4. POST a new joke
+app.post("/jokes",(req,res)=>{
+  const newJoke={
+    id:jokes.length+1,
+    jokeText:req.body.text,
+    jokeType:req.body.type,
+  }
+  jokes.push(newJoke)
+  console.log(jokes.slice(-1));
+  res.json(newJoke)
+})
 
 //5. PUT a joke
+app.put("/jokes/:id",(req,res)=>{
+  const id=parseInt(req.params.id)
+const thisJoke=jokes.find((joke)=>joke.id===id)
+
+
+  thisJoke.jokeText=req.body.text,
+  thisJoke.jokeType=req.body.type,
+
+
+res.json(thisJoke)
+
+})
 
 //6. PATCH a joke
 
+app.patch("/jokes/:id",(req,res)=>{
+  const id=parseInt(req.params.id)
+
+  const editJoke=jokes.find(joke=>joke.id===id)
+
+  editJoke.jokeType=req.body.type || editJoke.jokeType
+  editJoke.jokeText=req.body.text || editJoke.jokeText
+
+  res.json(editJoke)
+})
+
 //7. DELETE Specific joke
+app.delete("/jokes/:id",(req,res)=>{
+  const id=parseInt(req.params.id)
+
+  const searchIndex=jokes.findIndex(joke=>joke.id===id)
+
+  if(searchIndex >-1){
+    jokes.splice(searchIndex,1)
+    res.sendStatus(200)
+  }
+  else{
+    res.status(404).json({error:`joke with id:${id} not found. No jokes were deleted`})
+  }
+
+ 
+
+
+
+})
 
 //8. DELETE All jokes
+app.delete("/all",(req,res)=>{
+  const userKey=req.query.key
+
+  if(userKey===masterKey){
+    jokes=[]
+
+    res.sendStatus(200)
+
+  }
+else{
+  res.status(404).json({error:"not authorized"})
+}
+})
 
 app.listen(port, () => {
   console.log(`Successfully started server on port ${port}.`);
